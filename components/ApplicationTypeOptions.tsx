@@ -3,12 +3,9 @@
 
 import { useEffect, useState } from 'react';
 import { supabase } from '@/lib/supabase';
-type ApplicationTypeOptionsProps = {
-  value: string[];
-  onChange: (newValue: string[]) => void;
-};
 
-export default function ApplicationTypeOptions({ value = [], onChange }: ApplicationTypeOptionsProps) {
+
+export default function ApplicationTypeOptions({ value = [], onChange }) {
   const [options, setOptions] = useState([]);
   const [loading, setLoading] = useState(true);
 
