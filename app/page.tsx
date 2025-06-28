@@ -29,7 +29,7 @@ export default function Home() {
   const [message, setMessage] = useState('');
   const [error, setError] = useState('');
   // added later
-  const [applicationTypes, setApplicationTypes] = useState([]);
+  const [applicationTypes, setApplicationTypes] = useState<string[]>([]);
   const [projectTimeline, setProjectTimeline] = useState('');
 
 
