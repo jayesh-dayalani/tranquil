@@ -1,103 +1,203 @@
-import Image from "next/image";
+'use client';
+
+import ApplicationTypeOptions from "@/components/ApplicationTypeOptions";
+import HeroSection from "@/components/HeroSection";
+import ProductOptions from "@/components/ProductOptions";
+import RadioOptions from "@/components/RadioOptions";
+import TextInput from "@/components/TextInput";
+import { supabase } from "@/lib/supabase";
+import { useState } from "react";
+import ProjectTimeLineOptions from "@/components/ProjectTimelineOptions";
 
 export default function Home() {
-  return (
-    <div className="grid grid-rows-[20px_1fr_20px] items-center justify-items-center min-h-screen p-8 pb-20 gap-16 sm:p-20 font-[family-name:var(--font-geist-sans)]">
-      <main className="flex flex-col gap-[32px] row-start-2 items-center sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={180}
-          height={38}
-          priority
-        />
-        <ol className="list-inside list-decimal text-sm/6 text-center sm:text-left font-[family-name:var(--font-geist-mono)]">
-          <li className="mb-2 tracking-[-.01em]">
-            Get started by editing{" "}
-            <code className="bg-black/[.05] dark:bg-white/[.06] px-1 py-0.5 rounded font-[family-name:var(--font-geist-mono)] font-semibold">
-              app/page.tsx
-            </code>
-            .
-          </li>
-          <li className="tracking-[-.01em]">
-            Save and see your changes instantly.
-          </li>
-        </ol>
+  // All hooks must be inside the component
+  const [selectedCheckboxes, setSelectedCheckboxes] = useState([]); // array of option IDs
+  const [selectedRadio, setSelectedRadio] = useState(''); // radio value
 
-        <div className="flex gap-4 items-center flex-col sm:flex-row">
-          <a
-            className="rounded-full border border-solid border-transparent transition-colors flex items-center justify-center bg-foreground text-background gap-2 hover:bg-[#383838] dark:hover:bg-[#ccc] font-medium text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 sm:w-auto"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={20}
-              height={20}
-            />
-            Deploy now
-          </a>
-          <a
-            className="rounded-full border border-solid border-black/[.08] dark:border-white/[.145] transition-colors flex items-center justify-center hover:bg-[#f2f2f2] dark:hover:bg-[#1a1a1a] hover:border-transparent font-medium text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 w-full sm:w-auto md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Read our docs
-          </a>
+  const [textFields, setTextFields] = useState({
+    first_name: '',
+    last_name: '',
+    email: '',
+    company_name: '',
+    designation: '',
+    city: '',
+    estimated_area: '',
+    additional_notes: '',
+  });
+
+  const [loading, setLoading] = useState(false);
+  const [message, setMessage] = useState('');
+  const [error, setError] = useState('');
+  // added later
+  const [applicationTypes, setApplicationTypes] = useState([]);
+  const [projectTimeline, setProjectTimeline] = useState('');
+
+
+  // Validation function
+  const isFormValid = () => {
+    if (!selectedCheckboxes.length) return false;
+    if (!selectedRadio) return false;
+    if (
+      !textFields.first_name.trim() ||
+      !textFields.last_name.trim() ||
+      !textFields.email.trim() ||
+      !textFields.company_name.trim() ||
+      !textFields.designation.trim() ||
+      !textFields.city.trim() ||
+      !textFields.estimated_area.trim()
+      // additional_notes can be optional
+    ) return false;
+    return true;
+  };
+
+  const defaultTextFields = {
+    first_name: '',
+    last_name: '',
+    email: '',
+    company_name: '',
+    designation: '',
+    city: '',
+    estimated_area: '',
+    additional_notes: '',
+  };
+  const clearForm = () => {
+    setTextFields(defaultTextFields);
+    setSelectedCheckboxes([]);
+    setSelectedRadio('');
+    setApplicationTypes([]);
+    setProjectTimeline('');
+    setMessage('');
+    setError('');
+  };
+
+  // Handle form submission
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    setMessage('');
+    setError('');
+
+    if (!isFormValid()) {
+      setError('All fields are required. Please fill out every section.');
+      return;
+    }
+
+    setLoading(true);
+
+    // Prepare data to insert
+    // const response = await supabase.from('user_responses').insert([
+    //   {
+    //     selected_options: selectedCheckboxes, // array
+    //     selected_radio: selectedRadio,        // string
+    //     first_name: textFields.first_name,
+    //     last_name: textFields.last_name,
+    //     email: textFields.email,
+    //     application_types: applicationTypes,
+    //     project_timeline: projectTimeline,
+    //   },
+    // ]);
+
+    const response = await supabase.from('user_responses').insert([
+      {
+        selected_options: selectedCheckboxes,
+        selected_radio: selectedRadio,
+        first_name: textFields.first_name,
+        last_name: textFields.last_name,
+        email: textFields.email,
+        company_name: textFields.company_name,
+        designation: textFields.designation,
+        city: textFields.city,
+        estimated_area: textFields.estimated_area,
+        additional_notes: textFields.additional_notes,
+        application_types: applicationTypes,
+        project_timeline: projectTimeline,
+        salesman: 'nikhil'
+      },
+    ]);
+
+    if (response.error) {
+      setError('Error: ' + response.error.message);
+    } else {
+      setMessage('Submitted successfully!');
+      // Optionally reset form
+     clearForm()
+    }
+    setLoading(false);
+  };
+
+  return (
+    <div>
+
+
+      <HeroSection />
+      <div className="isolate bg-white px-6 py-24 sm:py-32 lg:px-8">
+        <div
+          aria-hidden="true"
+          className="absolute inset-x-0 -top-40 -z-10 transform-gpu overflow-hidden blur-3xl sm:-top-80"
+        >
+          <div
+            style={{
+              clipPath:
+                'polygon(74.1% 44.1%, 100% 61.6%, 97.5% 26.9%, 85.5% 0.1%, 80.7% 2%, 72.5% 32.5%, 60.2% 62.4%, 52.4% 68.1%, 47.5% 58.3%, 45.2% 34.5%, 27.5% 76.7%, 0.1% 64.9%, 17.9% 100%, 27.6% 76.8%, 76.1% 97.7%, 74.1% 44.1%)',
+            }}
+            className="relative left-1/2 -z-10 aspect-1155/678 w-144.5 max-w-none -translate-x-1/2 rotate-30 bg-linear-to-tr from-[#ff80b5] to-[#9089fc] opacity-30 sm:left-[calc(50%-40rem)] sm:w-288.75"
+          />
         </div>
-      </main>
-      <footer className="row-start-3 flex gap-[24px] flex-wrap items-center justify-center">
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/file.svg"
-            alt="File icon"
-            width={16}
-            height={16}
-          />
-          Learn
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/window.svg"
-            alt="Window icon"
-            width={16}
-            height={16}
-          />
-          Examples
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/globe.svg"
-            alt="Globe icon"
-            width={16}
-            height={16}
-          />
-          Go to nextjs.org →
-        </a>
-      </footer>
+        <div className="mx-auto max-w-2xl space-y-5">
+
+          <div className="mx-auto max-w-2xl text-center">
+            <h2 className="text-4xl font-semibold tracking-tight text-balance text-gray-900 sm:text-5xl">Contact Sales</h2>
+            <p className="mt-2 text-lg/8 text-gray-600">Subheading here , for the matter of trust.</p>
+          </div>
+
+          <form onSubmit={handleSubmit} className="space-y-8">
+            <TextInput
+              value={textFields}
+              onChange={setTextFields}
+            />
+            <ProductOptions
+              value={selectedCheckboxes}
+              onChange={setSelectedCheckboxes}
+            />
+            <ApplicationTypeOptions
+              value={applicationTypes}
+              onChange={setApplicationTypes}
+            />
+            <ProjectTimeLineOptions
+              value={projectTimeline}
+              onChange={setProjectTimeline}
+            />
+
+            <RadioOptions
+              value={selectedRadio}
+              onChange={setSelectedRadio}
+            />
+
+           <div className="flex gap-4">
+              <button
+                type="submit"
+                className="px-4 py-2 bg-indigo-600 text-white rounded hover:bg-indigo-700"
+                disabled={loading}
+              >
+                {loading ? 'Submitting...' : 'Submit'}
+              </button>
+              <button
+                type="button"
+                className="px-4 py-2 bg-gray-200 text-gray-900 rounded hover:bg-gray-300"
+                onClick={clearForm}
+                disabled={loading}
+              >
+                Clear Form
+              </button>
+            </div>
+            {error && (
+              <div className="mt-4 text-center text-sm text-red-700">{error}</div>
+            )}
+            {message && (
+              <div className="mt-4 text-center text-sm text-green-700">{message}</div>
+            )}
+          </form>
+        </div>
+      </div>
     </div>
   );
 }
