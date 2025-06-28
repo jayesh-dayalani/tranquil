@@ -35,7 +35,7 @@ export default function RadioOptions({ value, onChange }) {
         These are delivered via SMS to your mobile phone.
       </p> */}
       <div className="mt-6 space-y-6">
-        {options.map((option, idx) => {
+        {options.map((option) => {
           const id = `push-${option.id}`;
           return (
             <div className="flex items-center gap-x-3" key={option.id}>
